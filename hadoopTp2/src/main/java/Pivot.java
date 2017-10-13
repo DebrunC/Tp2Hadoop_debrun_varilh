@@ -34,11 +34,11 @@ public class Pivot {
         private Text word = new Text();
 
 
-        /*The key is the number of the line of a cvs file
+        /*The key is the byte offset of the line of a cvs file
          *The value is the content of the line
          *Output:
          *For each word of each row, we gave them, as key, the number of their futur row
-         *and the value is a map that contains the column number and the word
+         *and the value is a map that contains the byte offset and the word
          *example: maps() generate:
          *(0,[0,a]) 				(0,[1,d])					(0,[2,g])
          * (1,[0,b]) 				(1,[1,e])					(1,[2,h])
@@ -76,7 +76,6 @@ public class Pivot {
         */
 
         public void reduce(LongWritable key, Iterable<MapWritable> values, Context context) throws IOException, InterruptedException {
-            long count;
             String word="";
             Map<Long, String> tab = new HashMap();
             long min = 0;
@@ -86,11 +85,12 @@ public class Pivot {
                     LongWritable longtab=(LongWritable) map.getKey();
                     tab.put(new Long(longtab.get()), map.getValue().toString());}
             }
+            //min represents the key of the value to add to the next column
             min=Collections.min(tab.keySet());
             //we create a string that represent our new row. Example : a,d,g
             word=word+tab.get(new Long(0));
+
             tab.remove(min);
-            //for(count=1;count<tab.size()+1;count++){
             while(!tab.isEmpty()){
                 min=Collections.min(tab.keySet());
                 word=word+","+tab.get(min);
