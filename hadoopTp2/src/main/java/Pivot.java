@@ -79,17 +79,22 @@ public class Pivot {
             long count;
             String word="";
             Map<Long, String> tab = new HashMap();
+            long min = 0;
             // for the row 'key', we get all the result values of the shuffle and put them in a single map
             for(MapWritable val : values){
                 for (  Entry<Writable,Writable> map : val.entrySet()) {
                     LongWritable longtab=(LongWritable) map.getKey();
                     tab.put(new Long(longtab.get()), map.getValue().toString());}
             }
-
+            min=Collections.min(tab.keySet());
             //we create a string that represent our new row. Example : a,d,g
             word=word+tab.get(new Long(0));
-            for(count=1;count<tab.size();count++){
-                word=word+","+tab.get(new Long(count));
+            tab.remove(min);
+            //for(count=1;count<tab.size()+1;count++){
+            while(!tab.isEmpty()){
+                min=Collections.min(tab.keySet());
+                word=word+","+tab.get(min);
+                tab.remove(min);
             }
             //in the output we put the row number and the string that correspond. Example:(0,'a,d,g')
             context.write(key, new Text(word));
